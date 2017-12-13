@@ -42,10 +42,32 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.discount = discount
         self.iterations = iterations
         self.values = util.Counter() # A Counter is a dict with default 0
-
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-
+        
+        #//#handle terminal state
+        #//#????
+        
+        
+        
+        while self.iterations >= 0 :    #do this 'iterations' times
+            tempValues = self.values    #copy localy so you don't update mid-episode
+            states = self.mdp.getStates()
+            for state in states:
+                actions = self.mdp.getPossibleActions(state)
+                bestScore  = 0
+                for action in actions:
+                    transAndProbs = self.mdp.getTransitionStatesAndProbs(state,action)  #[(nextState, prob)]
+                    sumRes = 0
+                    for nextState, prob in transAndProbs:
+                        reward = self.mdp.getReward(state, action, nextState)
+                        nextStateValue = self.getValue(nextState)
+                        sumRes += prob * (reward + discount*nextStateValue)     # V(s) = T[R+yV(s')]
+                    if sumRes > bestScore:
+                        bestScore = sumRes
+                tempValues[state] = bestScore
+            self.values = tempValues    #at the end of the episode replace the old values with the new ones.
+            self.iterations -= 1
 
     def getValue(self, state):
         """
@@ -60,6 +82,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
+        
+        ##Q(s,a) = sum( T(s,a,s') [ R(s,a,s') + y maxQ(s',a') ] )
+        transAndProbs = self.mdp.getTransitionStatesAndProbs(state,action)  #[(nextState, prob)]
+        sumRes = 0
+        for nextState, prob in transAndProbs:
+            reward = self.mdp.getReward(state, action, nextState)
+            nextStateValue = self.getValue(nextState)
+            sumRes += prob * (reward + self.discount*nextStateValue)    # V(s) = T[R+yV(s')]
+        return sumRes
+        
         util.raiseNotDefined()
 
     def computeActionFromValues(self, state):
@@ -72,6 +104,22 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+        actions = self.mdp.getPossibleActions(state)
+        bestScore  = 0
+        bestAction = None
+        for action in actions:
+            transAndProbs = self.mdp.getTransitionStatesAndProbs(state,action)  #[(nextState, prob)]
+            sumRes = 0
+            for nextState, prob in transAndProbs:
+                reward = self.mdp.getReward(state, action, nextState)
+                nextStateValue = self.getValue(nextState)
+                sumRes += prob * (reward + self.discount*nextStateValue)     # V(s) = T[R+yV(s')]
+            if sumRes > bestScore:     #highest value and related action
+                bestScore = sumRes
+                bestAction = action
+        return bestAction
+        
+                
         util.raiseNotDefined()
 
     def getPolicy(self, state):
