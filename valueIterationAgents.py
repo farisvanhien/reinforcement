@@ -45,17 +45,15 @@ class ValueIterationAgent(ValueEstimationAgent):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
         
-        #//#handle terminal state
-        #//#????
         
         
         
-        while self.iterations >= 0 :    #do this 'iterations' times
-            tempValues = self.values    #copy localy so you don't update mid-episode
+        while self.iterations > 0 :    #do this 'iterations' times
+            tempValues = self.values.copy()    #copy localy so you don't update mid-episode
             states = self.mdp.getStates()
             for state in states:
                 actions = self.mdp.getPossibleActions(state)
-                bestScore  = 0
+                bestScore  = -100
                 for action in actions:
                     transAndProbs = self.mdp.getTransitionStatesAndProbs(state,action)  #[(nextState, prob)]
                     sumRes = 0
@@ -63,9 +61,11 @@ class ValueIterationAgent(ValueEstimationAgent):
                         reward = self.mdp.getReward(state, action, nextState)
                         nextStateValue = self.getValue(nextState)
                         sumRes += prob * (reward + discount*nextStateValue)     # V(s) = T[R+yV(s')]
-                    if sumRes > bestScore:
+                    if sumRes > bestScore :
                         bestScore = sumRes
-                tempValues[state] = bestScore
+                        
+                if len(actions) > 0:
+                    tempValues[state] = bestScore
             self.values = tempValues    #at the end of the episode replace the old values with the new ones.
             self.iterations -= 1
 
@@ -105,22 +105,28 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         actions = self.mdp.getPossibleActions(state)
-        bestScore  = 0
-        bestAction = None
+        
+        
+        if self.mdp.isTerminal(state):
+            return None
+        
+        bestScore = -1000
+        bestAction = actions[0]
+        
         for action in actions:
             transAndProbs = self.mdp.getTransitionStatesAndProbs(state,action)  #[(nextState, prob)]
             sumRes = 0
             for nextState, prob in transAndProbs:
                 reward = self.mdp.getReward(state, action, nextState)
                 nextStateValue = self.getValue(nextState)
-                sumRes += prob * (reward + self.discount*nextStateValue)     # V(s) = T[R+yV(s')]
-            if sumRes > bestScore:     #highest value and related action
+                sumRes += prob * (reward + self.discount*nextStateValue)  
+            
+            if sumRes > bestScore:
                 bestScore = sumRes
                 bestAction = action
+            
         return bestAction
-        
                 
-        util.raiseNotDefined()
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
