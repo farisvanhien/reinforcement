@@ -43,8 +43,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
-        
-                
+        #Make an empty dictionary for the q values
         self.q_values = {}
 
     def getQValue(self, state, action):
@@ -54,6 +53,8 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
+        
+        #If the dictionary of q values has a certain key return it, else 0 
         if(self.q_values.has_key((state,action))):
             return self.q_values[state,action]
         else:
@@ -70,14 +71,14 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        
+        #If there are legal action continue
         legalActions = self.getLegalActions(state)
         if(len(legalActions) == 0):
             return 0.0
-        
+        #Keep temporarily value to find the best action to take.
         bestAction = -1000
  
-        
+        #Find the best action
         for item in legalActions:
             thisAction = self.getQValue(state,item)
             if thisAction > bestAction:
@@ -95,13 +96,16 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
         
+        #If there are legal action continue
         legalActions = self.getLegalActions(state)
         if(len(legalActions) == 0):
             return None
         
+        #Keep temporarily value to find the best action to take.
         bestAction = -1000
         actualAction = legalActions[0]
         
+        #Find the best action
         for item in legalActions:
             thisAction = self.getQValue(state,item)
             if thisAction > bestAction:
@@ -127,9 +131,12 @@ class QLearningAgent(ReinforcementAgent):
         legalActions = self.getLegalActions(state)
         action = None
         "*** YOUR CODE HERE ***"
+        
+        #If there are no actions to take return None
         if(len(legalActions) == 0):
             return None
         
+        #Randomly choose depending on epsilon if we should take a random action from the list
         if(util.flipCoin(self.epsilon)):
             return random.choice(legalActions)
         else:
@@ -149,6 +156,7 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
         
+        #Use the q learning algorithm to adjust the q values. Sample is the next reward, prev value the q values of the state we are in now
         sample = (reward + self.discount * self.computeValueFromQValues(nextState))
         prevValue = 0
         if(self.q_values.has_key((state,action))):
