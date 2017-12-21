@@ -104,15 +104,17 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+        #Get a list of all the actions
         actions = self.mdp.getPossibleActions(state)
-        
-        
+        #If we are not at the end continue
         if self.mdp.isTerminal(state):
             return None
         
+        #Temp value for the action and the best score found
         bestScore = -1000
         bestAction = actions[0]
         
+        #For every action get the reward and probabilties
         for action in actions:
             transAndProbs = self.mdp.getTransitionStatesAndProbs(state,action)  #[(nextState, prob)]
             sumRes = 0
@@ -120,11 +122,11 @@ class ValueIterationAgent(ValueEstimationAgent):
                 reward = self.mdp.getReward(state, action, nextState)
                 nextStateValue = self.getValue(nextState)
                 sumRes += prob * (reward + self.discount*nextStateValue)  
-            
+            #If the action is better than any so far save that one
             if sumRes > bestScore:
                 bestScore = sumRes
                 bestAction = action
-            
+        #Return the best action
         return bestAction
                 
 
